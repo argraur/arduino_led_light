@@ -1,9 +1,9 @@
 // LEDs quantity
-#define CONFIG_LED_QUANTITY 8
+#define CONFIG_LED_QUANTITY 3
 //#define LED_CUSTOM_SETUP
 #define CONFIG_LED_MULTIPLE
 //#define CONFIG_USES_POT
-#define CONFIG_LED_CONNECT_PINS 
+#define CONFIG_LED_CONNECT_PINS 9, 11, 3
 #define CONFIG_POT_CONNECT_PIN A0
 
 class LedLight {
