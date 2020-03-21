@@ -1,100 +1,47 @@
-// LEDs quantity
-#define LED_QUANTITY 6
+#include "led_light.h"
 
-// LED class
-class LedLight {
-// Private space
-private:
-  // Port number
-  int port;
-
-// Public space
-public:
-  // Main constructor
-  LedLight::LedLight(int _port) { port = _port; };
-
-  // Method for enabling the LED
-  void enable() { digitalWrite(port, 255); };
-
-  // Method for disabling the LED
-  void disable() { digitalWrite(port, LOW); };
-
-  // Enables LED with a given delay
-  void enableWithDelay(int _delay) {
-    delay(_delay);
-    enable();
-  };
-
-  // Disables LED with a given delay
-  void disableWithDelay(int _delay) {
-    delay(_delay);
-    disable();
-  };
-  
-  // Registers LEDs for output.
-  void setup() { pinMode(port, OUTPUT); };
-
-  // Returns port integer for manual tasks.
-  int getPort() { return port; };
-};
-
-// Register LEDs or LED.
-#ifdef LED_QUANTITY
-LedLight led[LED_QUANTITY] = NULL;
-#else
-LedLight led = null;
-#endif
-
-  
+#ifndef CONFIG_LED_CUSTOM_SETUP
 void setup() {
-  // Initialize LED(s).
-  int port = 1;
-
-#ifdef LED_QUANTITY
-  for (int i = 0; i < LED_QUANTITY; i++) {
-    led[i] = LedLight(port);
-    port += 2; // LEDs are connected in every 2 ports
+#ifdef CONFIG_USES_POT
+  pot = Pot(CONFIG_POT_CONNECT_PIN);
+#endif
+  int ports[CONFIG_LED_QUANTITY] = {CONFIG_LED_CONNECT_PINS};
+  for (int i = 0; i < CONFIG_LED_QUANTITY; i++) {
+    led[i] = LedLight(ports[i]);
   }
-
-  for (int i = 0; i < LED_QUANTITY; i++) {
+  for (int i = 0; i < CONFIG_LED_QUANTITY; i++) {
     led[i].setup();
   }
+};
 #else
+void setup() {
+#ifdef CONFIG_USES_POT
+  Pot pot = Pot(CONFIG_POT_CONNECT_PIN);
+#endif
+  int port = CONFIG_LED_CONNECT_PINS;
   led = LedLight(port);
   led.setup();
-#endif
 }
+#endif
 
 // the loop function runs over and over again forever
 void loop() {
-  int ms = 100; // Default 100 ms delay
-  // Enable and disable all LEDs with a increasing delay
-  for (int j = 0; j < 5; j++) {
-    ms = 100 * j; // Increase ms by j times 5 times
-#ifdef LED_QUANTITY
-    for (int i = 0; i < LED_QUANTITY; i++) {
-      led[i].enableWithDelay(ms);
-      led[i].disableWithDelay(ms);
-    }
-#else
-    led.enableWithDelay(ms);
-    led.disableWithDelay(ms);
-#endif
-  }
-
-  // Enable and disable all LEDs with a decreasing delay
-  for (int j = 5; j > -1; j--) {
-    ms = 100 * j;
-#ifdef LED_QUANTITY
-    for (int i = 0; i < LED_QUANTITY; i++) {
-      led[i].enableWithDelay(ms);
-      led[i].disableWithDelay(ms);
-    }
-#else
-    led.enableWithDelay(ms);
-    led.disableWithDelay(ms);
-#endif
-  }
-
-  // loop
+  led[0].setBrightness(pot.getRotation() / 4);
+  led[1].setBrightness(led[0].getBrightness() * 1.8);
+  led[2].setBrightness(led[1].getBrightness() / 2);
 }
+
+/*
+void breathing() {
+  int brightnessMap[11] = {0, 25.5, 51, 76.5, 102, 127.5, 153, 178.5, 204, 229.5, 255};
+  for (int j = 0; j < 2; j++) {
+    for (int i = 0; i < 11; i++) {
+      led[j].setBrightnessWithDelay(brightnessMap[i], 30);
+    }
+  }
+  for (int j = 0; j < 2; j++) {
+    for (int i = 10; i >= 0; i--) {
+      led[j].setBrightnessWithDelay(brightnessMap[i], 30);
+    }
+  }
+}*/
